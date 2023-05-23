@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: KoalasMarketplace
@@ -18,7 +18,7 @@ dataSources:
         - User
       abis:
         - name: KoalasMarketplace
-          file: ./abis/KoalasMarketplace.json
+          file: KoalasMarketplace/abis/KoalasMarketplace.json
       eventHandlers:
         - event: MarketItemListed(indexed uint256,address,address,uint256,bool)
           handler: handleMarketItemListed
@@ -28,4 +28,4 @@ dataSources:
           handler: handleMarketSaleCreated
         - event: PriceUpdated(indexed uint256,uint256)
           handler: handlePriceUpdated
-      file: ./src/koalas-marketplace.ts
+      file: KoalasMarketplace/KoalasMarketplace.wasm

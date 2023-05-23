@@ -1,75 +1,64 @@
-import {
-  MarketItemListed as MarketItemListedEvent,
-  MarketListingRemoved as MarketListingRemovedEvent,
-  MarketSaleCreated as MarketSaleCreatedEvent,
-  PriceUpdated as PriceUpdatedEvent
-} from "../generated/KoalasMarketplace/KoalasMarketplace"
-import {
-  MarketItemListed,
-  MarketListingRemoved,
-  MarketSaleCreated,
-  PriceUpdated
-} from "../generated/schema"
+import { BigInt, Bytes } from '@graphprotocol/graph-ts';
+import { MarketItemListed, MarketListingRemoved, MarketSaleCreated, PriceUpdated } from '../generated/KoalasMarketplace/KoalasMarketplace';
+import { MarketItem, User } from '../generated/schema';
 
-export function handleMarketItemListed(event: MarketItemListedEvent): void {
-  let entity = new MarketItemListed(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.seller = event.params.seller
-  entity.owner = event.params.owner
-  entity.price = event.params.price
-  entity.isListed = event.params.isListed
+export function handleMarketItemListed(event: MarketItemListed): void {
+  let tokenId = event.params.tokenId.toString();
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  let marketItem = new MarketItem(tokenId);
+  marketItem.tokenId = event.params.tokenId;
+  marketItem.seller = event.params.seller.toHexString();
+  marketItem.owner = event.params.owner;
+  marketItem.price = event.params.price;
+  marketItem.isListed = event.params.isListed;
 
-  entity.save()
+  marketItem.save();
+
+  let user = User.load(event.params.seller.toHexString());
+  if (user == null) {
+    user = new User(event.params.seller.toHexString());
+    user.save();
+  }
+
 }
 
-export function handleMarketListingRemoved(
-  event: MarketListingRemovedEvent
-): void {
-  let entity = new MarketListingRemoved(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
+export function handleMarketListingRemoved(event: MarketListingRemoved): void {
+  let tokenId = event.params.tokenId.toString();
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let marketItem = MarketItem.load(tokenId);
+  if (marketItem){
+    marketItem.isListed = false;
+    marketItem.save();
+  }
 }
 
-export function handleMarketSaleCreated(event: MarketSaleCreatedEvent): void {
-  let entity = new MarketSaleCreated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.seller = event.params.seller
-  entity.buyer = event.params.buyer
-  entity.price = event.params.price
-  entity.isListed = event.params.isListed
+export function handleMarketSaleCreated(event: MarketSaleCreated): void {
+  let tokenId = event.params.tokenId.toString();
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  let marketItem = MarketItem.load(tokenId);
+  if (marketItem) {
+    marketItem.isListed = false;
+    marketItem.owner = event.params.buyer; // Assuming buyer is an address
+    marketItem.seller = event.params.seller.toHexString(); 
+    marketItem.save();
+    
+    let user = User.load(event.params.seller.toHexString());
+    if (user == null) {
+      user = new User(event.params.seller.toHexString());
+      user.save();
+    }
+    
+  }
 
-  entity.save()
 }
 
-export function handlePriceUpdated(event: PriceUpdatedEvent): void {
-  let entity = new PriceUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.price = event.params.price
+export function handlePriceUpdated(event: PriceUpdated): void {
+  let tokenId = event.params.tokenId.toString();
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let marketItem = MarketItem.load(tokenId);
+  if (marketItem) {
+    marketItem.price = event.params.price;
+    marketItem.save();
+  }
 }
+
