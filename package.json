@@ -1,5 +1,5 @@
 {
-  "name": "kai-koalas-marketplace",
+  "name": "kai-koalas-marketplace-v2",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",

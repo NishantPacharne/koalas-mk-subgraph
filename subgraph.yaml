@@ -6,9 +6,9 @@ dataSources:
     name: KoalasMarketplace
     network: mainnet
     source:
-      address: "0x56390b4180183bE3f391A1611466b1325900DB42"
+      address: "0x25B0C303097E9bb410C41bBa3c0a9417e8a2b851"
       abi: KoalasMarketplace
-      startBlock: 14198530
+      startBlock: 14282663
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
